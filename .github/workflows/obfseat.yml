@@ -26,10 +26,16 @@ jobs:
       uses: nuget/setup-nuget@v2
     - name: Build Obfseat
       run: |
-        nuget restore Obfseat/Obfseat.sln
-        msbuild Obfseat/Obfseat.sln /p:Configuration=Release
+        cd Obfseat
+        # Trouve le fichier .sln quel que soit son nom et le compile
+        $sln = Get-ChildItem -Filter *.sln | Select-Object -First 1
+        Write-Host "Fichier solution trouvé : $($sln.Name)"
+        nuget restore $sln.Name
+        msbuild $sln.Name /p:Configuration=Release
+
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: Obfseat-exe
-        path: Obfseat/**/Release/Obfseat.exe
+        # On récupère tous les .exe dans les dossiers Release pour être sûr de l'avoir
+        path: Obfseat/**/Release/*.exe
